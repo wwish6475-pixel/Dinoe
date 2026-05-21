@@ -17,33 +17,23 @@ jobs:
         run: |
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_linux.x86_64.zip
           unzip -q Godot_v4.2.2-stable_linux.x86_64.zip
-          mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
-          chmod +x /usr/local/bin/godot
+          sudo mv Godot_v4.2.2-stable_linux.x86_64 /usr/local/bin/godot
+          sudo chmod +x /usr/local/bin/godot
       - name: Install Templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates/4.2.2.stable
           wget -q https://github.com/godotengine/godot/releases/download/4.2.2-stable/Godot_v4.2.2-stable_export_templates.tpz
-          unzip -q Godot_v4.2.2-stable_export_templates.tpz
-          mv templates/android_debug.apk ~/.local/share/godot/export_templates/4.2.2.stable/
-          mv templates/android_release.apk ~/.local/share/godot/export_templates/4.2.2.stable/
-      - name: Export APK
+          unzip -q Godot_v4.2.2-stable_export_templates.tpz -d tpl
+          cp tpl/templates/android_debug.apk ~/.local/share/godot/export_templates/4.2.2.stable/
+          cp tpl/templates/android_release.apk ~/.local/share/godot/export_templates/4.2.2.stable/
+      - name: Create export_presets.cfg
         run: |
           mkdir -p build
-          cat > export_presets.cfg << 'EOF'
-          [preset.0]
-          name="Android"
-          platform="Android"
-          runnable=true
-          export_path="build/DinoRush.apk"
-          [preset.0.options]
-          keystore/debug="$ANDROID_HOME/debug.keystore"
-          keystore/debug_user="androiddebugkey"
-          keystore/debug_password="android"
-          permissions/internet=true
-          package/unique_name="com.wwish.dinorush"
-          package/name="Dino Rush"
-          EOF
-          godot --headless --export-debug "Android" build/DinoRush.apk || true
+          printf '[preset.0]\nname="Android"\nplatform="Android"\nrunnable=true\nexport_path="build/DinoRush.apk"\n\n[preset.0.options]\nkeystore/debug="%s/debug.keystore"\nkeystore/debug_user="androiddebugkey"\nkeystore/debug_password="android"\npermissions/internet=true\npackage/unique_name="com.wwish.dinorush"\npackage/name="Dino Rush"\narchitectures/armeabi-v7a=true\narchitectures/arm64-v8a=true\n' "$ANDROID_HOME" > export_presets.cfg
+      - name: Export APK
+        run: |
+          godot --headless --export-debug "Android" build/DinoRush.apk
+          ls -la build/
       - uses: actions/upload-artifact@v4
         with:
           name: DinoRush-APK
