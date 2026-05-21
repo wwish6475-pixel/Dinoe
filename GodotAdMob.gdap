@@ -1,0 +1,10 @@
+[config]
+
+name="GodotAdMob"
+binary_type="remote"
+binary="com.github.poing.godotadmob:admob-plugin:3.0.0"
+
+[dependencies]
+
+remote=["com.google.android.gms:play-services-ads:23.0.0"]
+custom_maven_repos=["https://maven.google.com"]
